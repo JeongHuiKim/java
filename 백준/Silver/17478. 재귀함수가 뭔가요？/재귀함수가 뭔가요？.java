@@ -4,7 +4,6 @@ import java.io.InputStreamReader;
 public class Main {
 
 	static StringBuilder sb = new StringBuilder();
-	
 	static int N;
 	
 	static String[] last = {"\"재귀함수가 뭔가요?\""
@@ -19,28 +18,29 @@ public class Main {
 		
 		// 기저 조건
 		if(n == 0) {
-			for(int j = 0 ; j < last.length ; j++) {
-				setBar(n);
-				sb.append(last[j]).append("\n");
-			}
+			printword(last,n);
 			return;
 		}
 		// 요구 조건
-		for(int j = 0 ; j < word.length ; j++) {
-			setBar(n);
-			sb.append(word[j]).append("\n");
-		}
+		printword(word,n);
 		
 		chatbot(n-1);
 		
 		setBar(n);
-		sb.append("라고 답변하였지.").append("\n");
+		sb.append(last[last.length-1]).append("\n");
 		
 	}
 	
 	private static void setBar(int n) {
 		for(int i = 0 ; i < N-n ; i++) {
 			sb.append("____");
+		}
+	}
+	
+	private static void printword(String[] input, int n) {
+		for(int j = 0 ; j < input.length ; j++) {
+			setBar(n);
+			sb.append(input[j]).append("\n");
 		}
 	}
 	
