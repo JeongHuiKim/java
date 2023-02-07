@@ -1,11 +1,9 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
 
-	static int num[];
 	static boolean visit[];
 	static int ans[];
 	static int N;
@@ -22,15 +20,11 @@ public class Main {
 		M = Integer.parseInt(st.nextToken());
 		
 		ans = new int[M];
-		num = new int[N];
-		for(int i = 0 ; i < N ; i++) {
-			num[i] = i+1;
-		}
 		visit = new boolean[N];
 		
 		permute(0);
 		
-		System.out.println(sb);
+		System.out.print(sb);
 		
 	}
 	
@@ -46,17 +40,11 @@ public class Main {
 		}
 		
 		for(int i = 0 ; i < N ; i++) {
-			
 			if(visit[i]) continue;
-			
-			ans[cnt] = num[i];
+			ans[cnt] = i+1;
 			visit[i] = true;
 			permute(cnt+1);
 			visit[i] = false;
-			
 		}
-		
-		
 	}
-	
 }
