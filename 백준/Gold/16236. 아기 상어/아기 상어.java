@@ -1,24 +1,22 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
-
-	static Shark shark;
-	static int[][] map;
+	
 	static int N;
-	static int time;
+	static int[][] map;
+	static Shark shark;
+	static int totalTime = 0;
 	
 	public static void main(String[] args) throws Exception{
-
+		
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-
 		N = Integer.parseInt(in.readLine());
+		
 		map = new int[N][N];
 		
 		for(int i = 0 ; i < N ; i++) {
@@ -27,105 +25,96 @@ public class Main {
 				map[i][j] = Integer.parseInt(st.nextToken());
 				if(map[i][j] == 9) {
 					shark = new Shark(i,j);
+					map[i][j] = 0;
 				}
 			}
 		}
 		
 		while(true) {
-			bfs();
+			hunt();
 		}
+		
 	}
 	
-	static int[] dx = {-1,0,0,1};
-	static int[] dy = {0,-1,1,0};
+	static int[] dx = {-1,1,0,0};
+	static int[] dy = {0,0,-1,1};
 	
-	static void bfs() {
+	static void hunt() {
 		
-		boolean[][] isSelected = new boolean[N][N];
+		boolean[][] visited = new boolean[N][N];
 		Queue<Node> queue = new ArrayDeque<>();
 		queue.add(new Node(shark.x, shark.y, 0));
-		isSelected[shark.x][shark.y] = true;
+		visited[shark.x][shark.y] = true;
 		
-		PriorityQueue<Node> answer = new PriorityQueue<>(new Comparator<Node>() {
-			@Override
-			public int compare(Node o1, Node o2) {
-				if(o1.x == o2.x) {
-					return o1.y - o2.y;
-				}
-				return o1.x - o2.x;
-			}
-		});
+		PriorityQueue<Node> temp = new PriorityQueue<>();
 		
-		int currentTime = -1;
-		
+		int time = 0 ;
 		while(!queue.isEmpty()) {
 			Node curr = queue.poll();
+			
+			if( map[curr.x][curr.y] != 0 && map[curr.x][curr.y] < shark.size) {
+				if(temp.size() == 0) {
+					time = curr.time;
+				}
+				else if(time != curr.time) {
+					break;
+				}
+				temp.add(curr);
+			}
 			
 			for(int i = 0 ; i < 4 ; i++) {
 				int x = curr.x + dx[i];
 				int y = curr.y + dy[i];
 				
-				// 범위를 만족하는지 확인 
-				if(x >= 0 && x < N && y >=0 && y < N && !isSelected[x][y] && map[x][y] <= shark.size) {
-					if(map[x][y] < shark.size && map[x][y] != 0 ) {
-						if(answer.size() == 0 ) {
-							answer.add(new Node(x, y, curr.time+1));
-							isSelected[x][y] = true;
-							currentTime = curr.time;
-						}
-						else if( currentTime == curr.time ) {
-							answer.add(new Node(x, y, curr.time+1));
-							isSelected[x][y] = true;
-						}
-						else {
-							break;
-						}
-					}
-					else{
-						queue.add(new Node(x,y,curr.time+1));
-						isSelected[x][y] = true;
-					}
+				if(x >= 0 && x < N && y >= 0 && y < N && map[x][y] <= shark.size && !visited[x][y]) {
+					queue.add(new Node(x,y,curr.time+1));
+					visited[x][y] = true;
 				}
 			}
 		}
 		
-		if(answer.size()!=0) {
-			Node next = answer.poll();
-			map[shark.x][shark.y] = 0;
-			map[next.x][next.y] = 9;
-			shark.x = next.x;
-			shark.y = next.y;
-			shark.eat++;
-			if(shark.eat == shark.size) {
-				shark.eat = 0;
-				shark.size++;
-			}
-			time += (currentTime + 1);
-			return;
+		if(temp.size() == 0) {
+			System.out.println(totalTime);
+			System.exit(0);
 		}
-		
-		System.out.println(time);
-		System.exit(0);
+		else {
+			Node eat = temp.poll();
+			map[eat.x][eat.y] = 0;
+			shark.x = eat.x;
+			shark.y = eat.y;
+			shark.eatCount++;
+			totalTime += eat.time;
+			if(shark.eatCount == shark.size) {
+				shark.size++;
+				shark.eatCount =0;
+			}
+		}
 	}
 	
-	//해당 노드로 이동하는데 걸리는 시간
-	static class Node{
+	static class Node implements Comparable<Node>{
 		int x;
 		int y;
-		int time;
+		int time = 0;
 		Node(int x, int y, int time){
 			this.x = x;
 			this.y = y;
 			this.time = time;
 		}
+		
+		@Override
+		public int compareTo(Node o) {
+			if(this.x == o.x) {
+				return this.y - o.y;
+			}
+			return this.x - o.x;
+		}
 	}
 	
-	// 상어 정보, 최초의 크기는 2
 	static class Shark{
 		int x;
 		int y;
 		int size = 2;
-		int eat = 0;
+		int eatCount = 0;
 		Shark(int x, int y){
 			this.x = x;
 			this.y = y;
